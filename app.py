@@ -16,12 +16,6 @@ class Message(BaseModel):
     key: str
     value: str
     ttl: int
-@app.get('/')
-def read_root():
-    return{
-        "message": "Docker Networking Cloud-Ready Dockerized Cache API (FastAPI + Redis + AWS)",
-        "redis_connected": redis_client is not None 
-    }
 @app.post('/cache')
 def set_cache(message: Message):
      """Store a key-value pair in Redis"""
