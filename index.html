@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cloud Cache Service</title>
+</head>
+<body>
+<h2>Cloud Cache API</h2>
+
+<label>Key:</label>
+<input type="text" id="key"><br>
+
+<label>Value:</label>
+<input type="text" id="value"><br>
+
+<label>TTL (seconds):</label>
+<input type="number" id="ttl"><br><br>
+
+<button onclick="setCache()">Set Cache</button>
+<button onclick="getCache()">Get Cache</button>
+<button onclick="deleteCache()">Delete Cache</button>
+
+<h3>Result:</h3>
+<pre id="result"></pre>
+
+<script>
+const baseURL = "http://3.99.213.39:8000";
+
+function setCache() {
+    const key = document.getElementById("key").value;
+    const value = document.getElementById("value").value;
+    const ttl = document.getElementById("ttl").value;
+
+    fetch(baseURL + "/cache", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            key: key,
+            value: value,
+            ttl: parseInt(ttl)
+        })
+    }).then(res => res.json())
+      .then(data => document.getElementById("result").innerText = JSON.stringify(data, null, 2));
+}
+
+function getCache() {
+    const key = document.getElementById("key").value;
+
+    fetch(baseURL + "/cache/" + key)
+    .then(res => res.json())
+    .then(data => document.getElementById("result").innerText = JSON.stringify(data, null, 2));
+}
+
+function deleteCache() {
+    const key = document.getElementById("key").value;
+
+    fetch(baseURL + "/cache/" + key, { method: "DELETE" })
+    .then(res => res.json())
+    .then(data => document.getElementById("result").innerText = JSON.stringify(data, null, 2));
+}
+</script>
+
+</body>
+</html>
