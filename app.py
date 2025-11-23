@@ -35,16 +35,16 @@ def set_cache(message: Message):
          }
      except Exception as e:
          raise HTTPException(status_code=500,detail=str(e))
-@app.get('cache/{key}')
+@app.get('/cache/{key}')
 def get_cache(key:str):
     """Retrieve a value from Redis"""
     if not redis_client:
         raise HTTPException(status_code=503, detail="Redis not connected")
     try:
-        value = redis_clinet.get(key)
+        value = redis_client.get(key)
         if value is None:
             raise HTTPException(status_code=404, detail="key not found")
-        ttl = redis_clinet.ttl(key)
+        ttl = redis_client.ttl(key)
         return{
             "key": key,
             "value": value,
