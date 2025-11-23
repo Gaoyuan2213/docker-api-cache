@@ -1,61 +1,186 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Cloud Cache Service</title>
+  <meta charset="UTF-8">
+  <title>Cloud Cache Service</title>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f4f6f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      width: 420px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      margin-top: 4px;
+      outline: none;
+      transition: 0.2s;
+    }
+
+    input:focus {
+      border-color: #4a90e2;
+    }
+
+    .buttons {
+      margin-top: 15px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    button {
+      flex: 1;
+      margin: 5px;
+      padding: 10px;
+      background: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #357ABD;
+    }
+
+    .delete {
+      background: #e74c3c;
+    }
+
+    .delete:hover {
+      background: #c0392b;
+    }
+
+    .result-box {
+      margin-top: 20px;
+      background: #f1f1f1;
+      padding: 10px;
+      border-radius: 5px;
+      min-height: 80px;
+      overflow-x: auto;
+      font-family: monospace;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 12px;
+      margin-top: 15px;
+      color: gray;
+    }
+  </style>
 </head>
+
 <body>
-<h2>Cloud Cache API</h2>
 
-<label>Key:</label>
-<input type="text" id="key"><br>
+<div class="container">
+  <h2>🚀 Cloud Cache Service</h2>
 
-<label>Value:</label>
-<input type="text" id="value"><br>
+  <label>Key</label>
+  <input type="text" id="key" placeholder="e.g. user123">
 
-<label>TTL (seconds):</label>
-<input type="number" id="ttl"><br><br>
+  <label>Value</label>
+  <input type="text" id="value" placeholder="e.g. session_token_xyz">
 
-<button onclick="setCache()">Set Cache</button>
-<button onclick="getCache()">Get Cache</button>
-<button onclick="deleteCache()">Delete Cache</button>
+  <label>TTL (seconds)</label>
+  <input type="number" id="ttl" placeholder="e.g. 60">
 
-<h3>Result:</h3>
-<pre id="result"></pre>
+  <div class="buttons">
+    <button onclick="setCache()">Set</button>
+    <button onclick="getCache()">Get</button>
+    <button onclick="deleteCache()" class="delete">Delete</button>
+  </div>
+
+  <h3>Result</h3>
+  <div id="result" class="result-box">Waiting for action...</div>
+
+  <footer>
+    Powered by FastAPI + Redis + Docker + AWS
+  </footer>
+</div>
 
 <script>
 const baseURL = "http://3.99.213.39:8000";
 
 function setCache() {
-    const key = document.getElementById("key").value;
-    const value = document.getElementById("value").value;
-    const ttl = document.getElementById("ttl").value;
+  const key = keyInput();
+  const value = valueInput();
+  const ttl = ttlInput();
 
-    fetch(baseURL + "/cache", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            key: key,
-            value: value,
-            ttl: parseInt(ttl)
-        })
-    }).then(res => res.json())
-      .then(data => document.getElementById("result").innerText = JSON.stringify(data, null, 2));
+  fetch(baseURL + "/cache", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ key, value, ttl: parseInt(ttl) })
+  })
+  .then(r => r.json())
+  .then(showResult)
+  .catch(showError);
 }
 
 function getCache() {
-    const key = document.getElementById("key").value;
+  const key = keyInput();
 
-    fetch(baseURL + "/cache/" + key)
-    .then(res => res.json())
-    .then(data => document.getElementById("result").innerText = JSON.stringify(data, null, 2));
+  fetch(baseURL + "/cache/" + key)
+    .then(r => r.json())
+    .then(showResult)
+    .catch(showError);
 }
 
 function deleteCache() {
-    const key = document.getElementById("key").value;
+  const key = keyInput();
 
-    fetch(baseURL + "/cache/" + key, { method: "DELETE" })
-    .then(res => res.json())
-    .then(data => document.getElementById("result").innerText = JSON.stringify(data, null, 2));
+  fetch(baseURL + "/cache/" + key, { method: "DELETE" })
+    .then(r => r.json())
+    .then(showResult)
+    .catch(showError);
+}
+
+function keyInput() {
+  return document.getElementById("key").value;
+}
+
+function valueInput() {
+  return document.getElementById("value").value;
+}
+
+function ttlInput() {
+  return document.getElementById("ttl").value;
+}
+
+function showResult(data) {
+  document.getElementById("result").innerText =
+      JSON.stringify(data, null, 2);
+}
+
+function showError(err) {
+  document.getElementById("result").innerText =
+      "Error: " + err;
 }
 </script>
 
